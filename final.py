@@ -31,39 +31,85 @@ def train():
 def test():
     global initalProb
     finalResults = []
+    prob = []
     for line in open("test.txt", "r"):
         sentence = list(line.strip())
-        prob = []
+        for i in range(len(sentence)):
+            prob.append([])
+        probIndex = [0] * len(sentence)
 #Commented out section
-        mostProbable(sentence, "0", len(sentence), finalResults, 0, prob)
+        mostProbable(sentence, "0", len(sentence), finalResults, prob, probIndex)
 
-def mostProbable(sen, res, n, finalResults, i, prob):
+'''def mostProbable(sen, res, n, finalResults, prob, probIndex):
     index = len(res)-1
     print res, index
     if n == index:
         finalResults.append(res)
-        print finalResults
         return
     if (index > len(prob)-1) or len(prob) == 0:
         calculateProbability(prob, sen, res)
         #print i, len(prob[index]), res
         #print prob[index]
-    print prob[len(res)-1]
-    print index, i
 
-    res+=prob[index][i][0][1]
+    res+=prob[index][probIndex[index]][0][1]
 
-    mostProbable(sen,res,n,finalResults,i,prob)
+    mostProbable(sen, res, n, finalResults, prob, probIndex)
     res = res[0:len(res)-1]
-    if len(prob[len(res)-1]) > i+1:
-        
-        mostProbable(sen,res,n,finalResults,i+1,prob)
+    if probIndex[index] < len(prob[index])-1:
+        probIndex[index]+=1
+        mostProbable(sen,res,n,finalResults,prob, probIndex)
 
+#Latest
+def mostProbable(sen, res, n, finalResults, prob, probIndex):
+    index = len(res)-1
+    if n == index:
+        print res
+        finalResults.append(res)
+        return
+    if (index > len(prob)-1) or len(prob) == 0:
+        calculateProbability(prob, sen, res)
+    res+=prob[index][probIndex[index]][0][1]
+    mostProbable(sen, res, n, finalResults, prob, probIndex)
+    if probIndex[0] == n:
+        return
+
+    if probIndex[index] < len(prob[index])-1:
+        probIndex[index]+=1
+        res = res[0:len(res)-1]
+        probIndex[index] = 0
+        del prob[index]
+        mostProbable(sen, res, n, finalResults, prob, probIndex)
+    else:
+        probIndex[index] = 0'''
+
+def mostProbable(sen, res, n, finalResults, prob, probIndex):
+    index = len(res)-1
+    if n == index:
+        print res
+        finalResults.append(res)
+        return
+    if len(prob) == 0 or len(prob[index]) == 0:
+        calculateProbability(prob, sen, res)
+    res+=prob[index][probIndex[index]][0][1]
+    mostProbable(sen, res, n, finalResults, prob, probIndex)
+    if probIndex[0] == n:
+        return
+
+    if probIndex[index] < len(prob[index])-1:
+        probIndex[index]+=1
+        res = res[0:len(res)-1]
+        for k in range(index+1, len(prob)):
+            probIndex[k] = 0
+            prob[k] = []
+        mostProbable(sen, res, n, finalResults, prob, probIndex)
+    else:
+        probIndex[index] = 0
+    
+    
 def calculateProbability(prob, sen, res):
     prev = res[-1]
     index = len(res)-1
     letters = list(sen)
-    prob.append([])
     for letter in res:
         if letter != '0':
             letters.remove(letter)
