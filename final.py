@@ -11,12 +11,14 @@ probDist = defaultdict(dict)
 initalProb = []
 bigramsFD = nltk.FreqDist([])
 unigramsFD = nltk.FreqDist([])
-
+dictionary = []
 
 def train():
     global unigrams, bigrams, bigramsFD, unigramsFD
     for line in open("corpus.txt", "r"):
-        sentence = '0'+line.strip()+'0'
+        line = line.strip()
+        dictionary.append(line)
+        sentence = '0'+line+'0'
         token=list(sentence)
         unigrams+=token
         bigrams+=(ngrams(token,2))
@@ -27,6 +29,20 @@ def train():
     bigramsLen = len(bigramsFD)
     for bigram in bigramsFD:
         probDist[bigram] = (bigramsFD[bigram]+1.0)/ (unigramsFD[bigram[0]]+bigramsLen)
+
+def wordBreak(s, dict):
+    sLen = len(s)
+    possible = [False for i in range(sLen + 1)]
+    possible[0] = True
+
+    for i in range(sLen):
+      for j in range(i + 1):
+        if possible[j] and s[j:i + 1] in dict:
+            possible[i + 1] = True
+            break;
+
+    return possible[sLen]
+
 
 def test():
     global initalProb
@@ -85,7 +101,8 @@ def mostProbable(sen, res, n, finalResults, prob, probIndex):
 def mostProbable(sen, res, n, finalResults, prob, probIndex):
     index = len(res)-1
     if n == index:
-        print res
+        if wordBreak(res[1:len(res)], dictionary):
+            print res 
         finalResults.append(res)
         return
     if len(prob) == 0 or len(prob[index]) == 0:
